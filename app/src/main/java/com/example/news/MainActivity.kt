@@ -57,6 +57,7 @@ fun MainApplication(){
     ) {padding ->
         //TODO : Add horizontal layout to choose info type above the info layout
         InfoScreen()
+        Spacer(modifier = Modifier.padding(20.dp))
     }
 }
 
@@ -74,10 +75,10 @@ fun TopToolBar(modifier: Modifier, @StringRes title : Int){
             // RowScope here, so these icons will be placed horizontally
             /*IconButton(onClick = { /* doSomething() */ }) {
                 Icon(Icons.Default.Share, contentDescription = "Share App")
-            }
-            IconButton(onClick = { /* doSomething() */ }) {
-                Icon(Icons.Filled.MoreVert, contentDescription = "Localized description")
             }*/
+            IconButton(onClick = { /* doSomething() */ }) {
+                Icon(Icons.Filled.Refresh, contentDescription = "Refresh news data")
+            }
         }
     )
 }
