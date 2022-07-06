@@ -8,4 +8,13 @@
         . It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages,
         and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
     </string>
+    <!--Info Rubriques-->
+    <string name="r_sport">Sport</string>
+    <string name="r_local">Local</string>
+    <string name="r_International">international</string>
+    <string name="r_e_sport">E-Sport</string>
+
+    <!--Rubriques-->
+    <string name="info_rubrique_title">Rubriques</string>
+    <string name="inforamtion_rubrique_title">News &amp; Updates</string>
 </resources>
