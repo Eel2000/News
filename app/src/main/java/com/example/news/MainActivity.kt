@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.runtime.Composable
@@ -80,7 +81,7 @@ fun TopToolBar(modifier: Modifier, @StringRes title : Int){
         title = { Text(stringResource(id = title)) },
         navigationIcon = {
             IconButton(onClick = { /* doSomething() */ }) {
-                Icon(Icons.Default.Menu, contentDescription = null)
+                Icon(Icons.Default.Home, contentDescription = null)
             }
         },
         actions = {
@@ -156,7 +157,10 @@ fun Rubrique(
     val stringTitle = stringResource(id = rubriqueTitle)
     Surface(
         shape = MaterialTheme.shapes.large,
-        modifier = Modifier.clickable { ShowMessage(context, "$stringTitle news clicked") }
+        modifier = Modifier.clickable
+        {
+            ShowMessage(context, "$stringTitle news clicked")
+        }
     ) {
         Card(
             elevation = 10.dp,
