@@ -10,15 +10,20 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement.Center
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,8 +33,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.news.ui.theme.NewsTheme
+import kotlinx.coroutines.AbstractCoroutine
+import kotlinx.coroutines.launch
 import java.util.*
 
+@ExperimentalMaterialApi
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,14 +71,42 @@ private val rubriqueInfoItems = listOf<rubriqueInfo>(
 )
 
 @Composable
+@ExperimentalMaterialApi
 fun MainApplication(){
-    Scaffold(
-        topBar ={
+
+    var bottomSheetState = rememberBottomSheetScaffoldState(
+        bottomSheetState = BottomSheetState(BottomSheetValue.Collapsed)
+    )
+
+    var coroutine = rememberCoroutineScope()
+
+    BottomSheetScaffold(
+        scaffoldState = bottomSheetState,
+        sheetPeekHeight = 0.dp,
+        sheetShape = RoundedCornerShape(topStart = 15.dp, topEnd = 15.dp),
+        sheetContent = {
+            Box (
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(fraction = 0.7f),
+                    ){
+                BottomSheetContent()
+            }
+        },
+        topBar = {
             TopToolBar(modifier = Modifier.padding(), title = R.string.app_name)
         }
-    ) {padding ->
-        InfoScreen()
-        Spacer(modifier = Modifier.padding(20.dp))
+    ) {
+        Column {
+            Spacer(modifier = Modifier.padding(10.dp))
+            Section(title = R.string.info_rubrique_title) {
+                SectionRubriqueInfo()
+            }
+            Spacer(modifier = Modifier.padding(10.dp))
+            Section(title = R.string.inforamtion_rubrique_title){
+                Inforamtion(bottomSheetState)
+            }
+        }
     }
 }
 
@@ -97,12 +133,15 @@ fun TopToolBar(modifier: Modifier, @StringRes title : Int){
 }
 
 @Composable
+@ExperimentalMaterialApi
 fun CardInfo(
     modifier: Modifier,
     @DrawableRes image: Int,
     @StringRes title: Int,
-    @StringRes information: Int
+    @StringRes information: Int,
+    state: BottomSheetScaffoldState
 ){
+    var coroutine = rememberCoroutineScope()
     val currentDateTime = Date()
     val context = LocalContext.current
    Surface(
@@ -133,7 +172,13 @@ fun CardInfo(
               )
               Button(
                   modifier = Modifier.padding(start = 10.dp),
-                  onClick = { ShowMessage(context,"Waiting for the internet...")}) {
+                  onClick = {
+                      coroutine.launch {
+                          if(state.bottomSheetState.isCollapsed){
+                              state.bottomSheetState.expand()
+                          }
+                      }
+                  }) {
                   Text(text = "Read more")
               }
               Spacer(Modifier.padding(20.dp))
@@ -171,7 +216,7 @@ fun Rubrique(
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement =  Arrangement.Center
+                verticalArrangement =  Center
             ) {
                 Text(
                     stringResource(id = rubriqueTitle),
@@ -212,7 +257,10 @@ fun Section(
 }
 
 @Composable
-fun Inforamtion(){
+@ExperimentalMaterialApi
+fun Inforamtion(
+    state: BottomSheetScaffoldState
+){
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(50.dp),
         contentPadding = PaddingValues(vertical = 10.dp, horizontal = 10.dp)
@@ -222,7 +270,8 @@ fun Inforamtion(){
                 modifier = Modifier.padding(),
                 image =item.image ,
                 title = item.title ,
-                information = item.text
+                information = item.text,
+                state = state
             )
         }
     }
@@ -237,8 +286,44 @@ fun InfoScreen(){
         }
         Spacer(modifier = Modifier.padding(10.dp))
        Section(title = R.string.inforamtion_rubrique_title){
-           Inforamtion()
+           //Inforamtion()
        }
+    }
+}
+
+@Composable
+fun BottomSheetContent(){
+    val currentDateTime = Date()
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Center,
+        modifier = Modifier
+            .verticalScroll(rememberScrollState())
+    ) {
+        Text(
+            stringResource(id = R.string.info_title),
+            style = MaterialTheme.typography.h3,
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+                .padding(bottom = 10.dp),
+        )
+        Image(
+            painterResource(id = R.drawable.listentomusicreducesanxiety),
+            contentDescription = null
+        )
+        Text(
+            text = "$currentDateTime",
+            style = MaterialTheme.typography.caption,
+            color = MaterialTheme.colors.primary
+        )
+        Text(
+            stringResource(id = R.string.information),
+            style = MaterialTheme.typography.body2,
+            modifier = Modifier.padding(
+                vertical = 10.dp,
+                horizontal = 5.dp
+            )
+        )
     }
 }
 
@@ -250,6 +335,7 @@ Toast.makeText(context,message, Toast.LENGTH_LONG).show()
 /*-----------------Preview---------------------*/
 @Preview(showBackground = true)
 @Composable
+@ExperimentalMaterialApi
 fun ApplicationPreview(){
     NewsTheme {
         MainApplication()
@@ -266,13 +352,18 @@ fun TopToolBarPreview() {
 
 @Preview(showBackground = true)
 @Composable
+@ExperimentalMaterialApi
 fun CardInfoPreview(){
     NewsTheme {
+        var sheetState = rememberBottomSheetScaffoldState(
+            bottomSheetState = BottomSheetState(BottomSheetValue.Collapsed)
+        )
         CardInfo(
             modifier = Modifier.padding(),
             image = R.drawable.listenmusicdontlike,
             title = R.string.info_title,
-            information = R.string.information
+            information = R.string.information,
+            state = sheetState
         )
     }
 }
@@ -303,9 +394,13 @@ fun SectionRubriqueInfoPreview(){
 
 @Preview(showBackground = true)
 @Composable
+@ExperimentalMaterialApi
 fun InformationPreview(){
     NewsTheme {
-        Inforamtion()
+        var sheetState = rememberBottomSheetScaffoldState(
+            bottomSheetState = BottomSheetState(BottomSheetValue.Collapsed)
+        )
+        Inforamtion(state = sheetState)
     }
 }
 
@@ -316,5 +411,13 @@ fun SectionPreview(){
         Section(title = R.string.info_rubrique_title ) {
             SectionRubriqueInfo()
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun bottomSheetContentPreview(){
+    NewsTheme {
+        BottomSheetContent()
     }
 }
